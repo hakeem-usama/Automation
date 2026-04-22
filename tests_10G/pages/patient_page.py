@@ -34,23 +34,25 @@ class PatientPage:
         return body_frame
 
     def navigate_to_patient_btn(self):
+        print("Clicking Patient button...")
         frame = self._menu_frame()
         frame.wait_for_selector(patient_btn, state="visible", timeout=30_000)
         patient_locator = self._patient_locator(frame)
         patient_locator.click()
+        print("Clicked Patient button")
     
     def search_patient(self):
         body_frame = self._body_frame()
         search_input_selector = f"xpath={patient_search_field}"
         search_button_selector = f"xpath={patient_search_btn}"
         patient_link_selector = f"xpath={patient_link}"
-
         body_frame.wait_for_selector(search_input_selector, state="visible", timeout=30_000)
         search_input = body_frame.locator(search_input_selector)
         search_input.fill(patient_acc_no)
         body_frame.wait_for_selector(search_button_selector, state="visible", timeout=30_000)
         body_frame.locator(search_button_selector).click()
         body_frame.wait_for_selector(patient_link_selector, state="visible", timeout=30_000)
+        print("Searching patient link...")
         patient_link_locator = body_frame.locator(patient_link_selector)
         patient_link_locator.click()
         

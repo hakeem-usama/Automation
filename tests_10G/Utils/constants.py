@@ -1,13 +1,13 @@
 CUREMD_DAT_LOGIN_ASP = 'https://releaseapp01.curemd.com/curemd/datLogin.asp'
-Username='AnnaBates4563'
-Password='aa'
-Expected_URL_Of_10G='https://releaseapp01.curemd.com/curemd/datCureMD.aspx#/'
+Username='uadph'
+Password='as'
+Expected_URL_Of_10G='https://releaseapp01.curemd.com/curemd/datCureMD.aspx'
 patient_btn="//a[@id='patientBtn']"
-patient_acc_no = "19632331220388"
+patient_acc_no = "19632331239377"
 patient_search_body_frame="//iframe[@id='fraCureMD_Body']"
 patient_search_field="//input[@id='txtAccount_Number']"
 patient_search_btn="//td[@title='Search Patient']"
-patient_link = "//a[@id='anchorPatientName26966']"
+patient_link = "//a[@id='anchorPatientName83186']"
 patient_mnu_frame = "//iframe[@id='fraCureMD_Patient_Menu']"
 patient_blng_btn = "//a[@id='Billing_anchor']"
 patient_adv_btn = "//a[@id='Patient_Advances_anchor']"
@@ -24,6 +24,10 @@ payment_card_cvv_frm = "//iframe[@name='card-cvv']"
 payment_card_cvv_fld = "//input[contains(@class,'card-cvv')]"
 payment_amount_fld = "//*[@id='txtAmount']"
 make_payment_btn_frm = "//iframe[contains(@name,'submit')]"
-make_payment_btn = "//button[@class='submit' and contains(text(), 'Make Payment')]"
+make_payment_btn = "//button[@class='submit' and contains(text(), 'Process Payment')]"
 success_payment_msg = "//div[@id='PaymentSuccess']"
 decline_payment_msg = "//div[@id='divErrorMessage']"
+card_number="4012000098765439"
+card_expiry="12/26"
+card_cvv="599"
+amount="16.79"

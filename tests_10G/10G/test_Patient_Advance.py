@@ -24,8 +24,8 @@ def test_Success_Patient_Advance(logged_in_application: Page):
     payment_actions.select_payment_method(payment_option)
     # advance_actions.select_payment_method(payment_option)
     advance_actions.navigate_to_payment_window()
-    payment_actions.select_payment_location(".Payfields")
-    payment_actions.make_success_manual_payment(".Payfields")
+    payment_actions.select_payment_location(".Payfields Surcharge")
+    payment_actions.make_success_manual_payment(".Payfields Surcharge")
     expect(payment_actions.success_payment_msg).to_have_count(1)
 
 def test_Decline_Patient_Advance(logged_in_application: Page):

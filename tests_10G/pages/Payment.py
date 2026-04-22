@@ -105,33 +105,62 @@ class Payment:
         else:
             dropdown.select_option(label=matching_option.text_content())
 
-    def make_success_manual_payment(self):
+    def select_payment_location(self, location_name: str = ".Payfields"):
         body_frame = self._body_frame()
         trigger = body_frame.locator(f"xpath={payment_lnk}")
         trigger.wait_for(state="visible", timeout=30_000)
         trigger.click(force=True)
         payment_window_frame = self._switch_to_frame(f"xpath={payment_window}")
+        
+        # Find and click the Genius dropdown
+        genius_dropdown = payment_window_frame.locator('[title=".Genius"]')
+        genius_dropdown.wait_for(state="visible", timeout=30_000)
+        genius_dropdown.click()
+        
+        # Find and fill the search input
+        search_input = payment_window_frame.locator('input[type="search"]')
+        search_input.wait_for(state="visible", timeout=30_000)
+        search_input.click()
+        search_input.fill(location_name)
+        
+        # Click the specified tree item
+        location_item = payment_window_frame.get_by_role('treeitem', name=location_name, exact=True)
+        location_item.wait_for(state="visible", timeout=30_000)
+        location_item.click()
 
+    def make_success_manual_payment(self, location_name: str = ".Payfields"):
+        # Payment location should already be selected by calling select_payment_location() first
+        # Wait for the payment window to stabilize after dropdown selection
+        self.page.wait_for_timeout(2000)
+        
+        # Re-initialize payment window frame after dropdown selection
+        payment_window_frame = self._switch_to_frame(f"xpath={payment_window}")
+        
+        # Wait for card number frame to be available
+        self.page.wait_for_timeout(1000)
         card_number_frame = self._switch_to_frame(f"xpath={payment_card_num_frm}", parent_frame=payment_window_frame)
         card_number_frame.wait_for_selector(f"xpath={payment_card_num_fld}", state="visible", timeout=30_000)
-        card_number_frame.locator(f"xpath={payment_card_num_fld}").fill("4012000098765439")
+        card_number_frame.locator(f"xpath={payment_card_num_fld}").fill(card_number)
 
+        # Re-get payment window frame before each card field
         payment_window_frame = self._switch_to_frame(f"xpath={payment_window}")
         card_expiry_frame = self._switch_to_frame(f"xpath={payment_card_expiry_frm}", parent_frame=payment_window_frame)
         card_expiry_frame.wait_for_selector(f"xpath={payment_card_expiry_fld}", state="visible", timeout=30_000)
-        card_expiry_frame.locator(f"xpath={payment_card_expiry_fld}").fill("12/25")
+        card_expiry_frame.locator(f"xpath={payment_card_expiry_fld}").fill(card_expiry)
 
         payment_window_frame = self._switch_to_frame(f"xpath={payment_window}")
         card_cvv_frame = self._switch_to_frame(f"xpath={payment_card_cvv_frm}", parent_frame=payment_window_frame)
         card_cvv_frame.wait_for_selector(f"xpath={payment_card_cvv_fld}", state="visible", timeout=30_000)
-        card_cvv_frame.locator(f"xpath={payment_card_cvv_fld}").fill("123")
+        card_cvv_frame.locator(f"xpath={payment_card_cvv_fld}").fill(card_cvv)
 
         payment_window_frame = self._switch_to_frame(f"xpath={payment_window}")
         amount_fld = self._wait_for_payment_locator(payment_amount_fld, root_frame=payment_window_frame)
-        amount_fld.fill("16.79")
+        amount_fld.fill(amount)
         
         payment_window_frame = self._switch_to_frame(f"xpath={payment_window}")
+        print("Card Details Filled...")
         submit_frame = self._switch_to_frame(f"xpath={make_payment_btn_frm}", parent_frame=payment_window_frame)
+        print("Card Details Filled...")
         submit_frame.locator(f"xpath={make_payment_btn}").click()
 
         self.page.wait_for_timeout(500)
