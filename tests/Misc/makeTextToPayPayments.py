@@ -16,10 +16,11 @@ def read_urls_from_file(file_path: str) -> list[str]:
     return urls
 
 def test_run(page: Page) -> None:
-    urls = read_urls_from_file("tests/Misc/urls.txt")
+    urls = read_urls_from_file("urls.txt")
+    print("URLs Found")
     if not urls:
-        urls = ["https://c.rt2.me/73X-IQT8xF"]
-
+        urls = ["https://c.rt2.me/73a_jwcHo1"]
+        print("URL Not Found")
     for url in urls:
         print(f"Processing URL: {url}")
         # If you want headed mode, run pytest with --headed
@@ -69,4 +70,3 @@ def test_run(page: Page) -> None:
         page.locator("iframe[name=\"submit\"]").content_frame.get_by_role("button", name="Pay Now").click()
         page.wait_for_timeout(5000)
         ##assert page.get_by_text(re.compile(r"Payment successful for", re.I)).is_visible()
-    

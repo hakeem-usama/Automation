@@ -1,11 +1,13 @@
 from playwright.sync_api import Page, expect
 import re
+import pytest
 from tests_10G.Utils.constants import *
 from tests_10G.pages.patient_page import PatientPage
 from tests_10G.pages.patient_advance import PatientAdvance
 from tests_10G.pages.Payment import Payment
 
 def test_Success_Patient_Advance(logged_in_application: Page):
+    logged_in_application.wait_for_load_state("networkidle")
     navigate_patient=PatientPage(logged_in_application)
     navigate_patient.navigate_to_patient_btn()
     patient_search_header = logged_in_application.get_by_text("Patient Search", exact=False)
@@ -22,7 +24,8 @@ def test_Success_Patient_Advance(logged_in_application: Page):
     payment_actions.select_payment_method(payment_option)
     # advance_actions.select_payment_method(payment_option)
     advance_actions.navigate_to_payment_window()
-    payment_actions.make_success_manual_payment()
+    payment_actions.select_payment_location(".Payfields")
+    payment_actions.make_success_manual_payment(".Payfields")
     expect(payment_actions.success_payment_msg).to_have_count(1)
 
 def test_Decline_Patient_Advance(logged_in_application: Page):

@@ -42,11 +42,39 @@ def logged_in_application(page: Page) -> Page:
     page.wait_for_load_state("domcontentloaded")
     login_10G=Login10G(page)
     login_10G.navigateTo10G()
-    viewport_dimensions = page.evaluate(
-        "() => ({ width: window.screen.availWidth, height: window.screen.availHeight })"
-    )
     logged_in_application=login_10G.login10G(Username,Password)
-    logged_in_application.set_viewport_size(viewport_dimensions)
+    
+    # Try to get current screen size with fallback to default dimensions
+    try:
+        # Wait a bit for the page to stabilize before evaluating
+        logged_in_application.wait_for_timeout(1000)
+        
+        # Get screen dimensions
+        screen_info = logged_in_application.evaluate("""
+            () => {
+                return {
+                    width: window.screen.availWidth || 1366,
+                    height: window.screen.availHeight || 768
+                };
+            }
+        """)
+        
+        # Use 80% of available screen size to leave some margin
+        viewport_width = max(1024, int(screen_info['width'] * 0.8))
+        viewport_height = max(768, int(screen_info['height'] * 0.8))
+        
+        # Ensure minimum dimensions for usability
+        viewport_width = min(viewport_width, 1920)
+        viewport_height = min(viewport_height, 1080)
+        
+        print(f"Setting viewport to: {viewport_width}x{viewport_height}")
+        logged_in_application.set_viewport_size({"width": viewport_width, "height": viewport_height})
+        
+    except Exception as e:
+        print(f"Failed to get screen size, using default dimensions: {e}")
+        # Fallback to reasonable default dimensions
+        logged_in_application.set_viewport_size({"width": 1366, "height": 768})
+    
     expected_url_base = Expected_URL_Of_10G.rstrip("#/")
     expected_url_pattern = re.compile(rf"^{re.escape(expected_url_base)}(?:#/)?$")
     expect(logged_in_application).to_have_url(expected_url_pattern, timeout=60_000)
