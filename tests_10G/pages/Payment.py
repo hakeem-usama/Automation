@@ -105,7 +105,7 @@ class Payment:
         else:
             dropdown.select_option(label=matching_option.text_content())
 
-    def select_payment_location(self, location_name: str = ".Payfields"):
+    def select_payment_location(self, location_name: str):
         body_frame = self._body_frame()
         trigger = body_frame.locator(f"xpath={payment_lnk}")
         trigger.wait_for(state="visible", timeout=30_000)
@@ -128,13 +128,24 @@ class Payment:
         location_item.wait_for(state="visible", timeout=30_000)
         location_item.click()
 
-    def make_success_manual_payment(self, location_name: str = ".Payfields", save_card: bool = False):
+    def make_success_manual_payment(self, location_name: str, save_card: bool, amount: str, card_number: str):
         # Payment location should already be selected by calling select_payment_location() first
         # Wait for the payment window to stabilize after dropdown selection
         self.page.wait_for_timeout(2000)
         
         # Re-initialize payment window frame after dropdown selection
         payment_window_frame = self._switch_to_frame(f"xpath={payment_window}")
+        
+        # Check for New Card link and click if found
+        try:
+            new_card_link = payment_window_frame.locator("#NewCardLink a, a:has-text('New Card'), a[onclick*='ShowManualEntry']").first
+            if new_card_link.count() > 0:
+                new_card_link.wait_for(state="visible", timeout=5_000)
+                new_card_link.click()
+                print("New Card link clicked")
+                self.page.wait_for_timeout(1000)  # Wait for manual entry form to appear
+        except Exception:
+            print("New Card link not found, continuing with existing card form...")
         
         # Wait for card number frame to be available
         self.page.wait_for_timeout(1000)
@@ -188,7 +199,7 @@ class Payment:
             max_transaction_field.press("Control+a")  # Select all existing text
             max_transaction_field.press("Backspace")  # Clear the field
             self.page.wait_for_timeout(500)  # Wait for field to be cleared
-            max_transaction_field.fill("1000.00")  # Fill new value
+            max_transaction_field.fill(max_transaction_amount)  # Fill new value
             max_transaction_field.press("Tab")  # Move to next field to confirm
         payment_window_frame = self._switch_to_frame(f"xpath={payment_window}")
         print("Card Details Filled...")
@@ -208,17 +219,13 @@ class Payment:
             try:
                 # Search for CardOnFileAgreement iframe in frame tree
                 print("Searching for CardOnFileAgreement iframe in frame tree...")
-                iframe_locator = payment_window_frame.locator("iframe#DynamicDialogBox, iframe[src*='CardOnFileAgreement']")
+                iframe_locator = payment_window_frame.locator(signature_frm)
                 iframe_element = iframe_locator.first.element_handle()
- 
-                    
+
                 self.page.wait_for_timeout(500)
                 
                 # Get the frame content
                 signature_frame = iframe_element.content_frame()
-                if signature_frame is None:
-                    raise RuntimeError("Card Agreement iframe found but content frame is unavailable")
-                
                 print("Switched to signature frame")
                 
                 # Wait for frame to load
@@ -228,7 +235,7 @@ class Payment:
                 print("Clicking signature image to enable initials field...")
                 try:
                     # Try to find and click signature image - this enables the initials field
-                    signature_image = signature_frame.locator("#imgScriptelSignature, img[alt*='signature'], img[title*='signature'], img[src*='signature']").first
+                    signature_image = signature_frame.locator(signature_img).first
                     signature_image.wait_for(state="visible", timeout=10_000)
                     signature_image.click()
                     print("Signature image clicked")
@@ -241,7 +248,7 @@ class Payment:
                 
                 # Now fill the initials field (it should be visible after clicking signature)
                 print("Filling initials field...")
-                signature_field = signature_frame.locator("#txtInitials")
+                signature_field = signature_frame.locator(signature_fld)
                 
                 # Wait for field to be visible (may need to wait for it to appear)
                 deadline = time.time() + 10
@@ -254,12 +261,12 @@ class Payment:
                     self.page.wait_for_timeout(200)
                 
                 signature_field.click()
-                signature_field.fill("Sign")
+                signature_field.fill(card_signature)
                 print("Signature filled")
                 
                 # Click Continue button
                 print("Looking for Continue button...")
-                continue_btn = signature_frame.locator("#imgContinue")
+                continue_btn = signature_frame.locator(continue_btn_locator)
                 continue_btn.wait_for(state="visible", timeout=10_000)
                 continue_btn.click()
                 print("Continue clicked, signature popup closed")
@@ -291,6 +298,43 @@ class Payment:
             print("Payment success message not found, taking screenshot anyway...")
             payment_window_frame = self._switch_to_frame(f"xpath={payment_window}")
         return payment_window_frame
+
+    def make_success_card_on_file_payment(self, location_name: str, amount: str ):
+
+        self.page.wait_for_timeout(2000)
+
+        payment_window_frame = self._switch_to_frame(f"xpath={payment_window}")
+        print("Payment window frame:")
+        print(payment_window)
+        print("Payment window frame2:")
+        print(payment_window_frame)
+        try:
+            new_card_link = payment_window_frame.locator("#NewCardLink a, a:has-text('New Card'), a[onclick*='ShowManualEntry']").first
+            print("New card link count:", new_card_link.count())
+            if new_card_link.count() > 0:
+                new_card_link.wait_for(state="visible", timeout=5_000)
+                #payment_window_frame = self._switch_to_frame(f"xpath={payment_window}")
+                amount_fld = payment_window_frame.locator(f"xpath={card_on_file_amount_fld}")
+                amount_fld.fill(amount)   
+
+                process_payment_btn=payment_window_frame.locator(f"xpath={process_payment_btn_loc}")
+                process_payment_btn.click()
+
+                
+
+                self.page.wait_for_timeout(500)
+                success_msg = payment_window_frame.get_by_text("Payment Successful", exact=False)
+                success_msg.wait_for(state="visible", timeout=10_000)
+                if success_msg.count() > 0:
+                    print("Payment successful")
+                    screenshot_path='payment_success_with_card_on_file.png'
+                    self.page.screenshot(path=screenshot_path)
+                    return "Success"
+                return None
+        except Exception:
+            print("Saved Card Screen not shown...")
+            return None
+
 
     def make_decline_manual_payment(self):
         body_frame = self._body_frame()

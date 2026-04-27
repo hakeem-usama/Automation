@@ -6,7 +6,8 @@ from tests_10G.pages.patient_page import PatientPage
 from tests_10G.pages.patient_advance import PatientAdvance
 from tests_10G.pages.Payment import Payment
 
-def test_Success_Patient_Advance_without_save_card(logged_in_application: Page):
+#Manual Full Amount Payment without Surcharge
+def test_Success_Patient_Advance_without_save_card_and_without_Surcharge(logged_in_application: Page):
     logged_in_application.wait_for_load_state("networkidle")
     navigate_patient=PatientPage(logged_in_application)
     navigate_patient.navigate_to_patient_btn()
@@ -24,11 +25,12 @@ def test_Success_Patient_Advance_without_save_card(logged_in_application: Page):
     payment_actions.select_payment_method(payment_option)
     # advance_actions.select_payment_method(payment_option)
     advance_actions.navigate_to_payment_window()
-    payment_actions.select_payment_location(".Payfields Surcharge")
-    payment_actions.make_success_manual_payment(".Payfields Surcharge", save_card=False)
+    payment_actions.select_payment_location(".Payfields")
+    payment_actions.make_success_manual_payment(".Payfields", save_card=False, amount=full_amount, card_number=card_number_non_surcharge)
     expect(payment_actions.success_payment_msg).to_have_count(1)
 
-def test_Success_Patient_Advance_with_save_card(logged_in_application: Page):
+#Manual Full Amount Payment with Surcharge
+def test_Success_Patient_Advance_without_save_card_and_with_Surcharge(logged_in_application: Page):
     logged_in_application.wait_for_load_state("networkidle")
     navigate_patient=PatientPage(logged_in_application)
     navigate_patient.navigate_to_patient_btn()
@@ -47,8 +49,267 @@ def test_Success_Patient_Advance_with_save_card(logged_in_application: Page):
     # advance_actions.select_payment_method(payment_option)
     advance_actions.navigate_to_payment_window()
     payment_actions.select_payment_location(".Payfields Surcharge")
-    payment_actions.make_success_manual_payment(".Payfields Surcharge", save_card=True)
+    payment_actions.make_success_manual_payment(".Payfields Surcharge", save_card=False, amount=full_amount, card_number=card_number_surcharge)
     expect(payment_actions.success_payment_msg).to_have_count(1)
+
+#Manual Partial Amount Payment without Surcharge
+def test_Success_Partial_Patient_Advance_without_save_card_and_without_Surcharge(logged_in_application: Page):
+    logged_in_application.wait_for_load_state("networkidle")
+    navigate_patient=PatientPage(logged_in_application)
+    navigate_patient.navigate_to_patient_btn()
+    patient_search_header = logged_in_application.get_by_text("Patient Search", exact=False)
+    expect(patient_search_header).to_be_visible()
+    navigate_patient.search_patient()
+    advance_actions = PatientAdvance(logged_in_application)
+    advance_actions.navigate_to_patient_menu()
+    advance_actions.navigate_to_patient_billing()
+    advance_actions.navigate_to_patient_advances()
+    advance_actions.navigate_to_collect_advances()
+    # advance_actions.navigate_to_payment_method()
+    payment_actions = Payment(logged_in_application)
+    payment_actions.navigate_to_payment_method()
+    payment_actions.select_payment_method(payment_option)
+    # advance_actions.select_payment_method(payment_option)
+    advance_actions.navigate_to_payment_window()
+    payment_actions.select_payment_location(".Payfields")
+    payment_actions.make_success_manual_payment(".Payfields", save_card=False, amount=partial_amount, card_number=card_number_non_surcharge)
+    expect(payment_actions.success_payment_msg).to_have_count(1)
+
+#Manual Partial Amount Payment with Surcharge
+def test_Success_Partial_Patient_Advance_without_save_card_and_with_Surcharge(logged_in_application: Page):
+    logged_in_application.wait_for_load_state("networkidle")
+    navigate_patient=PatientPage(logged_in_application)
+    navigate_patient.navigate_to_patient_btn()
+    patient_search_header = logged_in_application.get_by_text("Patient Search", exact=False)
+    expect(patient_search_header).to_be_visible()
+    navigate_patient.search_patient()
+    advance_actions = PatientAdvance(logged_in_application)
+    advance_actions.navigate_to_patient_menu()
+    advance_actions.navigate_to_patient_billing()
+    advance_actions.navigate_to_patient_advances()
+    advance_actions.navigate_to_collect_advances()
+    # advance_actions.navigate_to_payment_method()
+    payment_actions = Payment(logged_in_application)
+    payment_actions.navigate_to_payment_method()
+    payment_actions.select_payment_method(payment_option)
+    # advance_actions.select_payment_method(payment_option)
+    advance_actions.navigate_to_payment_window()
+    payment_actions.select_payment_location(".Payfields Surcharge")
+    payment_actions.make_success_manual_payment(".Payfields Surcharge", save_card=False, amount=partial_amount, card_number=card_number_surcharge)
+    expect(payment_actions.success_payment_msg).to_have_count(1)
+
+#Manual Full Amount Payment without Surcharge with Save Card
+def test_Success_Patient_Advance_with_save_card_and_without_Surcharge(logged_in_application: Page):
+    logged_in_application.wait_for_load_state("networkidle")
+    navigate_patient=PatientPage(logged_in_application)
+    navigate_patient.navigate_to_patient_btn()
+    patient_search_header = logged_in_application.get_by_text("Patient Search", exact=False)
+    expect(patient_search_header).to_be_visible()
+    navigate_patient.search_patient()
+    advance_actions = PatientAdvance(logged_in_application)
+    advance_actions.navigate_to_patient_menu()
+    advance_actions.navigate_to_patient_billing()
+    advance_actions.navigate_to_patient_advances()
+    advance_actions.navigate_to_collect_advances()
+    # advance_actions.navigate_to_payment_method()
+    payment_actions = Payment(logged_in_application)
+    payment_actions.navigate_to_payment_method()
+    payment_actions.select_payment_method(payment_option)
+    # advance_actions.select_payment_method(payment_option)
+    advance_actions.navigate_to_payment_window()
+    payment_actions.select_payment_location(".Payfields")
+    payment_actions.make_success_manual_payment(".Payfields", save_card=True, amount=full_amount,card_number=card_number_non_surcharge)
+    expect(payment_actions.success_payment_msg).to_have_count(1)
+
+#Card On File Full Payment without Surcharge 
+def test_Success_Patient_Advance_with_card_on_file_and_without_Surcharge(logged_in_application: Page):
+    logged_in_application.wait_for_load_state("networkidle")
+    navigate_patient=PatientPage(logged_in_application)
+    navigate_patient.navigate_to_patient_btn()
+    patient_search_header = logged_in_application.get_by_text("Patient Search", exact=False)
+    expect(patient_search_header).to_be_visible()
+    navigate_patient.search_patient()
+    advance_actions = PatientAdvance(logged_in_application)
+    advance_actions.navigate_to_patient_menu()
+    advance_actions.navigate_to_patient_billing()
+    advance_actions.navigate_to_patient_advances()
+    advance_actions.navigate_to_collect_advances()
+    # advance_actions.navigate_to_payment_method()
+    payment_actions = Payment(logged_in_application)
+    payment_actions.navigate_to_payment_method()
+    payment_actions.select_payment_method(payment_option)
+    # advance_actions.select_payment_method(payment_option)
+    advance_actions.navigate_to_payment_window()
+    payment_actions.select_payment_location(".Payfields Surcharge")
+    result = payment_actions.make_success_card_on_file_payment(".Payfields Surcharge", amount=full_amount)
+    assert result == "Success", "Payment was not successful"
+
+#Card On File Partial Payment without Surcharge 
+def test_Success_Patient_Advance_with_card_on_file_and_partial_amount_without_Surcharge(logged_in_application: Page):
+    logged_in_application.wait_for_load_state("networkidle")
+    navigate_patient=PatientPage(logged_in_application)
+    navigate_patient.navigate_to_patient_btn()
+    patient_search_header = logged_in_application.get_by_text("Patient Search", exact=False)
+    expect(patient_search_header).to_be_visible()
+    navigate_patient.search_patient()
+    advance_actions = PatientAdvance(logged_in_application)
+    advance_actions.navigate_to_patient_menu()
+    advance_actions.navigate_to_patient_billing()
+    advance_actions.navigate_to_patient_advances()
+    advance_actions.navigate_to_collect_advances()
+    # advance_actions.navigate_to_payment_method()
+    payment_actions = Payment(logged_in_application)
+    payment_actions.navigate_to_payment_method()
+    payment_actions.select_payment_method(payment_option)
+    # advance_actions.select_payment_method(payment_option)
+    advance_actions.navigate_to_payment_window()
+    payment_actions.select_payment_location(".Payfields Surcharge")
+    result = payment_actions.make_success_card_on_file_payment(".Payfields Surcharge", amount=partial_amount)
+    assert result == "Success", "Payment was not successful"
+
+#Manual Full Amount Payment with Surcharge with Save Card
+def test_Success_Patient_Advance_with_save_card_and_with_Surcharge(logged_in_application: Page):
+    logged_in_application.wait_for_load_state("networkidle")
+    navigate_patient=PatientPage(logged_in_application)
+    navigate_patient.navigate_to_patient_btn()
+    patient_search_header = logged_in_application.get_by_text("Patient Search", exact=False)
+    expect(patient_search_header).to_be_visible()
+    navigate_patient.search_patient()
+    advance_actions = PatientAdvance(logged_in_application)
+    advance_actions.navigate_to_patient_menu()
+    advance_actions.navigate_to_patient_billing()
+    advance_actions.navigate_to_patient_advances()
+    advance_actions.navigate_to_collect_advances()
+    # advance_actions.navigate_to_payment_method()
+    payment_actions = Payment(logged_in_application)
+    payment_actions.navigate_to_payment_method()
+    payment_actions.select_payment_method(payment_option)
+    # advance_actions.select_payment_method(payment_option)
+    advance_actions.navigate_to_payment_window()
+    payment_actions.select_payment_location(".Payfields Surcharge")
+    payment_actions.make_success_manual_payment(".Payfields Surcharge", save_card=True, amount=full_amount, card_number=card_number_surcharge)
+    expect(payment_actions.success_payment_msg).to_have_count(1)
+
+#Card On File Full Payment with Surcharge 
+def test_Success_Patient_Advance_with_card_on_file_and_with_Surcharge(logged_in_application: Page):
+    logged_in_application.wait_for_load_state("networkidle")
+    navigate_patient=PatientPage(logged_in_application)
+    navigate_patient.navigate_to_patient_btn()
+    patient_search_header = logged_in_application.get_by_text("Patient Search", exact=False)
+    expect(patient_search_header).to_be_visible()
+    navigate_patient.search_patient()
+    advance_actions = PatientAdvance(logged_in_application)
+    advance_actions.navigate_to_patient_menu()
+    advance_actions.navigate_to_patient_billing()
+    advance_actions.navigate_to_patient_advances()
+    advance_actions.navigate_to_collect_advances()
+    # advance_actions.navigate_to_payment_method()
+    payment_actions = Payment(logged_in_application)
+    payment_actions.navigate_to_payment_method()
+    payment_actions.select_payment_method(payment_option)
+    # advance_actions.select_payment_method(payment_option)
+    advance_actions.navigate_to_payment_window()
+    payment_actions.select_payment_location(".Payfields Surcharge")
+    result = payment_actions.make_success_card_on_file_payment(".Payfields Surcharge", amount=full_amount)
+    assert result == "Success", "Payment was not successful"
+
+#Card On File Partial Payment with Surcharge 
+def test_Success_Patient_Advance_with_card_on_file_and_partial_amount_with_Surcharge(logged_in_application: Page):
+    logged_in_application.wait_for_load_state("networkidle")
+    navigate_patient=PatientPage(logged_in_application)
+    navigate_patient.navigate_to_patient_btn()
+    patient_search_header = logged_in_application.get_by_text("Patient Search", exact=False)
+    expect(patient_search_header).to_be_visible()
+    navigate_patient.search_patient()
+    advance_actions = PatientAdvance(logged_in_application)
+    advance_actions.navigate_to_patient_menu()
+    advance_actions.navigate_to_patient_billing()
+    advance_actions.navigate_to_patient_advances()
+    advance_actions.navigate_to_collect_advances()
+    # advance_actions.navigate_to_payment_method()
+    payment_actions = Payment(logged_in_application)
+    payment_actions.navigate_to_payment_method()
+    payment_actions.select_payment_method(payment_option)
+    # advance_actions.select_payment_method(payment_option)
+    advance_actions.navigate_to_payment_window()
+    payment_actions.select_payment_location(".Payfields Surcharge")
+    result = payment_actions.make_success_card_on_file_payment(".Payfields Surcharge", amount=partial_amount)
+    assert result == "Success", "Payment was not successful"
+
+
+#Manual Partial Amount Payment without Surcharge with Save Card
+def test_Success_Patient_Advance_with_save_card_and_partial_amount_without_Surcharge(logged_in_application: Page):
+    logged_in_application.wait_for_load_state("networkidle")
+    navigate_patient=PatientPage(logged_in_application)
+    navigate_patient.navigate_to_patient_btn()
+    patient_search_header = logged_in_application.get_by_text("Patient Search", exact=False)
+    expect(patient_search_header).to_be_visible()
+    navigate_patient.search_patient()
+    advance_actions = PatientAdvance(logged_in_application)
+    advance_actions.navigate_to_patient_menu()
+    advance_actions.navigate_to_patient_billing()
+    advance_actions.navigate_to_patient_advances()
+    advance_actions.navigate_to_collect_advances()
+    # advance_actions.navigate_to_payment_method()
+    payment_actions = Payment(logged_in_application)
+    payment_actions.navigate_to_payment_method()
+    payment_actions.select_payment_method(payment_option)
+    # advance_actions.select_payment_method(payment_option)
+    advance_actions.navigate_to_payment_window()
+    payment_actions.select_payment_location(".Payfields")
+    payment_actions.make_success_manual_payment(".Payfields", save_card=True, amount=partial_amount,card_number=card_number_non_surcharge)
+    expect(payment_actions.success_payment_msg).to_have_count(1)
+
+#Manual Partial Amount Payment with Surcharge with Save Card
+def test_Success_Patient_Advance_with_save_card_and_partial_amount_and_with_Surcharge(logged_in_application: Page):
+    logged_in_application.wait_for_load_state("networkidle")
+    navigate_patient=PatientPage(logged_in_application)
+    navigate_patient.navigate_to_patient_btn()
+    patient_search_header = logged_in_application.get_by_text("Patient Search", exact=False)
+    expect(patient_search_header).to_be_visible()
+    navigate_patient.search_patient()
+    advance_actions = PatientAdvance(logged_in_application)
+    advance_actions.navigate_to_patient_menu()
+    advance_actions.navigate_to_patient_billing()
+    advance_actions.navigate_to_patient_advances()
+    advance_actions.navigate_to_collect_advances()
+    # advance_actions.navigate_to_payment_method()
+    payment_actions = Payment(logged_in_application)
+    payment_actions.navigate_to_payment_method()
+    payment_actions.select_payment_method(payment_option)
+    # advance_actions.select_payment_method(payment_option)
+    advance_actions.navigate_to_payment_window()
+    payment_actions.select_payment_location(".Payfields Surcharge")
+    payment_actions.make_success_manual_payment(".Payfields Surcharge", save_card=True, amount=partial_amount, card_number=card_number_surcharge)
+    expect(payment_actions.success_payment_msg).to_have_count(1)
+
+
+
+
+
+
+
+# def test_Success_Patient_Advance_with_card_on_file(logged_in_application: Page):
+#     logged_in_application.wait_for_load_state("networkidle")
+#     navigate_patient=PatientPage(logged_in_application)
+#     navigate_patient.navigate_to_patient_btn()
+#     patient_search_header = logged_in_application.get_by_text("Patient Search", exact=False)
+#     expect(patient_search_header).to_be_visible()
+#     navigate_patient.search_patient()
+#     advance_actions = PatientAdvance(logged_in_application)
+#     advance_actions.navigate_to_patient_menu()
+#     advance_actions.navigate_to_patient_billing()
+#     advance_actions.navigate_to_patient_advances()
+#     advance_actions.navigate_to_collect_advances()
+#     # advance_actions.navigate_to_payment_method()
+#     payment_actions = Payment(logged_in_application)
+#     payment_actions.navigate_to_payment_method()
+#     payment_actions.select_payment_method(payment_option)
+#     # advance_actions.select_payment_method(payment_option)
+#     advance_actions.navigate_to_payment_window()
+#     payment_actions.select_payment_location(".Payfields Surcharge")
+#     result = payment_actions.make_success_card_on_file_payment(".Payfields Surcharge", amount=full_amount)
+#     assert result == "Success", "Payment was not successful"
 
 def test_Decline_Patient_Advance(logged_in_application: Page):
     logged_in_application.wait_for_load_state("networkidle")
